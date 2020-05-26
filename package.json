@@ -1,0 +1,73 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "description": "authentication and authorization",
+  "keywords": [
+    "loopback-application",
+    "loopback"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "build": "lb-tsc",
+    "build:watch": "lb-tsc --watch",
+    "lint": "npm run prettier:check && npm run eslint",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "prettier:cli": "lb-prettier \"**/*.ts\" \"**/*.js\"",
+    "prettier:check": "npm run prettier:cli -- -l",
+    "prettier:fix": "npm run prettier:cli -- --write",
+    "eslint": "lb-eslint --report-unused-disable-directives .",
+    "eslint:fix": "npm run eslint -- --fix",
+    "pretest": "npm run clean && npm run build",
+    "test": "lb-mocha --allow-console-logs \"dist/__tests__\"",
+    "posttest": "npm run lint",
+    "test:dev": "lb-mocha --allow-console-logs dist/__tests__/**/*.js && npm run posttest",
+    "docker:build": "docker build -t auth .",
+    "docker:run": "docker run -p 3000:3000 -d auth",
+    "migrate": "node ./dist/migrate",
+    "prestart": "npm run build",
+    "start": "node -r source-map-support/register .",
+    "clean": "lb-clean dist *.tsbuildinfo .eslintcache"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "author": "",
+  "license": "",
+  "files": [
+    "README.md",
+    "dist",
+    "src",
+    "!*/__tests__"
+  ],
+  "dependencies": {
+    "@loopback/authentication": "^4.2.5",
+    "@loopback/boot": "^2.3.1",
+    "@loopback/context": "^3.8.1",
+    "@loopback/core": "^2.7.0",
+    "@loopback/openapi-v3": "^3.4.1",
+    "@loopback/repository": "^2.5.1",
+    "@loopback/rest": "^5.0.1",
+    "@loopback/rest-explorer": "^2.2.2",
+    "@loopback/service-proxy": "^2.3.0",
+    "@types/bcryptjs": "^2.4.2",
+    "@types/lodash": "^4.14.152",
+    "bcryptjs": "^2.4.3",
+    "isemail": "^3.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "loopback-connector-mysql": "^5.4.3",
+    "tslib": "^1.10.0"
+  },
+  "devDependencies": {
+    "@loopback/build": "^5.4.1",
+    "source-map-support": "^0.5.19",
+    "@loopback/testlab": "^3.1.5",
+    "@types/node": "^10.17.24",
+    "@loopback/eslint-config": "^7.0.1",
+    "eslint": "^7.0.0",
+    "typescript": "~3.9.3"
+  }
+}
