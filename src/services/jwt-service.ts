@@ -5,7 +5,7 @@ import {promisify} from 'util';
 import {TokenServiceBindings} from '../keys';
 const jwt = require('jsonwebtoken');
 const signAsync = promisify(jwt.sign);
-
+const verifyAsync = promisify(jwt.verify);
 
 export class JWTService {
   // @inject('authentication.jwt.secret')
@@ -35,12 +35,25 @@ export class JWTService {
   }
 
   async verifyToken(token: string): Promise<UserProfile> {
-    return Promise.resolve({
-      [securityId]: 'user.id!.toString()',
-      name: 'userName',
-      id: 'user.id',
-      email: 'user.email'
-    })
+
+    if (!token) {
+      throw new HttpErrors.Unauthorized(
+        `Error verifying token:'token' is null`
+      )
+    };
+
+    let userProfile: UserProfile;
+    try {
+      const decryptedToken = await verifyAsync(token, this.jwtSecret);
+      userProfile = Object.assign(
+        {[securityId]: '', id: '', name: ''},
+        {[securityId]: decryptedToken.id, id: decryptedToken.id, name: decryptedToken.name}
+      );
+    }
+    catch (err) {
+      throw new HttpErrors.Unauthorized(`Error verifying token:${err.message}`)
+    }
+    return userProfile;
   }
 }
 

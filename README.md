@@ -1,3 +1,5 @@
+
+
 # Auth
 
 [<img src="https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png" alt="LoopBack" style="zoom: 50%;" />](http://loopback.io/)
@@ -130,6 +132,7 @@
     In this class implements one method:
 
   * generateToken (return: Promise<string>)
+  * verifyToken (return: Promise<UserProfile>)
 
  
 
@@ -154,3 +157,207 @@ To use it again bind in application.ts
   ```
 
   
+
+# Congo now you will get the token on Login
+
+
+
+* Step6: Refracting the code
+
+  Now Create a new file ``Keys.ts``
+
+  ```typescript
+  import {TokenService, UserService} from '@loopback/authentication';
+  import {BindingKey} from '@loopback/core';
+  import {User} from './models';
+  import {Credentials} from './repositories/user.repository';
+  import {PasswordHasher} from './services/hash.password';
+  export namespace TokenServiceConstants {
+    export const TOKEN_SECRET_VALUE = '138asda8213';
+    export const TOKEN_EXPIRES_IN_VALUE = '7h';
+  }
+  export namespace TokenServiceBindings {
+    export const TOKEN_SECRET = BindingKey.create<string>(
+      'authentication.jwt.secret',
+    );
+    export const TOKEN_EXPIRES_IN = BindingKey.create<string>(
+      'authentication.jwt.expiresIn',
+    );
+    export const TOKEN_SERVICE = BindingKey.create<TokenService>(
+      'services.jwt.service',
+    );
+  }
+  export namespace PasswordHasherBindings {
+    export const PASSWORD_HASHER = BindingKey.create<PasswordHasher>(
+      'services.hasher',
+    );
+    export const ROUNDS = BindingKey.create<number>('services.hasher.rounds');
+  }
+  export namespace UserServiceBindings {
+    export const USER_SERVICE = BindingKey.create<UserService<Credentials, User>>(
+      'services.user.service',
+    );
+  }
+  ```
+
+  and then using these binding put it into the ``application.ts``
+
+  ```typescript
+  // this.bind('service.hasher').toClass(BcryptHasher);
+  // this.bind('rounds').to(10);
+  // this.bind('service.user.service').toClass(MyUserService)
+  // this.bind('service.jwt.service').toClass(JWTService);
+  // this.bind('authentication.jwt.secret').to('dvchgdvcjsdbhcbdjbvjb');
+  // this.bind('authentication.jwt.expiresIn').to('7h');
+  
+  this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
+  this.bind(PasswordHasherBindings.ROUNDS).to(10)
+  this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
+  this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
+  this.bind(TokenServiceBindings.TOKEN_SECRET).to(
+      TokenServiceConstants.TOKEN_SECRET_VALUE)
+  this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(
+    	TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE);
+  ```
+
+  
+
+* Step7: How to Protect a route
+
+  Add the decorator ``authenticate('jwt')`` 
+
+  Now to add this ``jwt`` go to the ``sequence.ts`` 
+
+  ```typescript
+  import {AuthenticateFn, AuthenticationBindings} from '@loopback/authentication';
+  .
+  .
+  @inject(AuthenticationBindings.AUTH_ACTION)
+  protected authenticateRequest: AuthenticateFn
+  .
+  .
+   const route = this.findRoute(request);
+  
+  // call authentication action
+  await this.authenticateRequest(request);
+  
+  ```
+
+  
+
+  Now create ``jwt-stratgies`` in ``authentication-stratgies``. 
+
+  Here ``JWTStrategy`` class implements ``AuthenticationStrategy`` interface from ``@loopback/authentication``
+
+  and implement one method:
+
+  * authenticate(return: Promise<UserProfile | RedirectRoute | undefined>)
+
+  ```typescript
+   async authenticate(request: Request<ParamsDictionary, any, any, ParsedQs>):
+      Promise<UserProfile | RedirectRoute | undefined> {
+  
+      const token: string = this.extractCredentials(request);
+      const userProfile = await this.jwtService.verifyToken(token);
+      return Promise.resolve(userProfile);
+  
+    }
+  ```
+
+  Now in ``JWT`` service implements verify token
+
+  ```typescript
+    async verifyToken(token: string): Promise<UserProfile> {
+  
+      if (!token) {
+        throw new HttpErrors.Unauthorized(
+          `Error verifying token:'token' is null`
+        )
+      };
+  
+      let userProfile: UserProfile;
+      try {
+        const decryptedToken = await verifyAsync(token, this.jwtSecret);
+        userProfile = Object.assign(
+          {[securityId]: '', id: '', name: ''},
+          {[securityId]: decryptedToken.id, id: decryptedToken.id, name: decryptedToken.name}
+        );
+      }
+      catch (err) {
+        throw new HttpErrors.Unauthorized(`Error verifying token:${err.message}`)
+      }
+      return userProfile;
+    }
+  ```
+
+  
+
+* Step8: Finally authorized a route
+
+  Now go to the user controller and add the 
+
+  ``security: OPERATION_SECURITY_SPEC,``
+
+  ```typescript
+  @authenticate("jwt")
+    @get('/users/me', {
+      security: OPERATION_SECURITY_SPEC,
+      responses: {
+        '200': {
+          description: 'The current user profile',
+          content: {
+            'application/json': {
+              schema: getJsonSchemaRef(User),
+            },
+          },
+        },
+      },
+    })
+    async me(
+      @inject(AuthenticationBindings.CURRENT_USER)
+      currentUser: UserProfile,
+    ): Promise<UserProfile> {
+      return Promise.resolve(currentUser);
+    }
+  ```
+
+  
+
+  and in the ``application.ts``
+
+  ```typescript
+  
+  // Add security spec
+  this.addSecuritySpec();
+  
+  this.component(AuthenticationComponent);
+  registerAuthenticationStrategy(this, JWTStrategy)
+  
+  addSecuritySpec(): void {
+      this.api({
+        openapi: '3.0.0',
+        info: {
+          title: 'test application',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {securitySchemes: SECURITY_SCHEME_SPEC},
+        security: [
+          {
+            // secure all endpoints with 'jwt'
+            jwt: [],
+          },
+        ],
+        servers: [{url: '/'}],
+      });
+    }
+  ```
+
+  By doing this all you can send the token in the API explorer and see the lock sign.
+
+
+
+# Finally done 
+
+
+
