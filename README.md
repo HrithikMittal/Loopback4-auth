@@ -6,7 +6,7 @@
 
 * Step1: 
 
-  ```typescript
+  ```bash
   lb4 model User
   lb4 datasource
   lb4 repository
@@ -14,7 +14,7 @@
 
 * Step2: 
 
-  ```
+  ```bash
   lb4 controller (Empty controller)
   Create a signup and signin routes
   ```
@@ -36,15 +36,19 @@
 
   To use it bind it in the ```application.ts``` 
 
-  ```  this.bind('service.hasher').toClass(BcryptHasher);```
+  ```  typescript
+  this.bind('service.hasher').toClass(BcryptHasher);
+  ```
+
+
   Now do the SQL Injection in the controller class ``UserController`` constructor
 
-  ```
+  ```typescript
   @inject('service.hasher')
   public hasher: BcryptHasher,
   ```
 
-  Use hashPassword method
+  Use ``hashPassword`` method
 
   Now just save the user into the db
 
@@ -90,6 +94,63 @@
         id: user.id,
         email: user.email
       };
+  ```
+
+  
+
+  To use it again bind in application.ts
+
+  ```
+  this.bind('service.user.service').toClass(MyUserService)
+  ```
+
+  Now do the SQL Injection in the controller class ``UserController`` constructor
+
+  ```
+  @inject('service.user.service')
+  public userService: MyUserService,
+  ```
+
+  Now in the ``\login`` route use the methods
+
+  ```typescript
+  // make sure user exist,password should be valid
+  const user = await this.userService.verifyCredentials(credentials);
+  // console.log(user);
+  const userProfile = await this.userService.convertToUserProfile(user);
+  // console.log(userProfile);
+  ```
+
+  
+
+  * Step5:
+
+    Now create another service which implements ``JWTService`` class 
+
+    In this class implements one method:
+
+    * generateToken (return: Promise<string>)
+
+  
+
+  To use it again bind in application.ts
+
+  ```typescript
+  this.bind('service.jwt.service').toClass(JWTService);
+  ```
+
+  Now do the SQL Injection in the controller class ``UserController`` constructor
+
+  ```typescript
+  @inject('service.jwt.service')
+  public jwtService: JWTService,
+  ```
+
+  Now in the ``\login`` route use the method
+
+  ```typescript
+  const token = await this.jwtService.generateToken(userProfile);
+  return Promise.resolve({token: token})
   ```
 
   
