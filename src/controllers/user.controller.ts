@@ -34,9 +34,7 @@ export class UserController {
   })
   async signup(@requestBody() userData: User) {
     validateCredentials(_.pick(userData, ['email', 'password']));
-
     userData.password = await this.hasher.hashPassword(userData.password)
-
     const savedUser = await this.userRepository.create(userData);
     delete savedUser.password;
     return savedUser;
@@ -65,7 +63,6 @@ export class UserController {
     @requestBody() credentials: Credentials,
   ): Promise<{token: string}> {
     // make sure user exist,password should be valid
-
     const user = await this.userService.verifyCredentials(credentials);
     // console.log(user);
     const userProfile = await this.userService.convertToUserProfile(user);

@@ -16,6 +16,7 @@ export class AuthApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
   constructor(options: ApplicationConfig = {}) {
+
     super(options);
 
     // setup binding
@@ -49,6 +50,6 @@ export class AuthApplication extends BootMixin(
     this.bind('rounds').to(10);
     this.bind('service.user.service').toClass(MyUserService)
     this.bind('service.jwt.service').toClass(JWTService);
-    this.bind('authenticatio.jwt.secret').to('ahvcgvgcvgvghvjg');
+    this.bind('authenticatio.jwt.secret').to('SVDFBT5673YHBY4T4Y6UN77UNRN');
   }
 }

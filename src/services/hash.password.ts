@@ -5,7 +5,6 @@ interface PasswordHasher<T = string> {
   comparePassword(provdedPass: T, storedPass: T): Promise<boolean>
 }
 
-
 export class BcryptHasher implements PasswordHasher<string> {
   async comparePassword(provdedPass: string, storedPass: string): Promise<boolean> {
     const passwordMatches = await compare(provdedPass, storedPass);

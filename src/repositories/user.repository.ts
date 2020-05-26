@@ -8,7 +8,6 @@ export type Credentials = {
   password: string;
 }
 
-
 export class UserRepository extends DefaultCrudRepository<
   User,
   typeof User.prototype.id,
