@@ -123,20 +123,20 @@
 
   
 
-  * Step5:
+* Step5:
 
     Now create another service which implements ``JWTService`` class 
 
     In this class implements one method:
 
-    * generateToken (return: Promise<string>)
+  * generateToken (return: Promise<string>)
 
-  
+ 
 
-  To use it again bind in application.ts
+To use it again bind in application.ts
 
   ```typescript
-  this.bind('service.jwt.service').toClass(JWTService);
+ this.bind('service.jwt.service').toClass(JWTService);
   ```
 
   Now do the SQL Injection in the controller class ``UserController`` constructor

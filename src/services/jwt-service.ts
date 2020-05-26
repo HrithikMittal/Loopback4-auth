@@ -1,14 +1,19 @@
 import {inject} from '@loopback/core';
 import {HttpErrors} from '@loopback/rest';
-import {UserProfile} from '@loopback/security';
+import {securityId, UserProfile} from '@loopback/security';
 import {promisify} from 'util';
+import {TokenServiceBindings} from '../keys';
 const jwt = require('jsonwebtoken');
 const signAsync = promisify(jwt.sign);
 
 
 export class JWTService {
-  @inject('authenticatio.jwt.secret')
+  // @inject('authentication.jwt.secret')
+  @inject(TokenServiceBindings.TOKEN_SECRET)
   public readonly jwtSecret: string;
+
+  @inject(TokenServiceBindings.TOKEN_EXPIRES_IN)
+  public readonly expiresSecret: string;
 
   async generateToken(userProfile: UserProfile): Promise<string> {
     if (!userProfile) {
@@ -19,7 +24,7 @@ export class JWTService {
     let token = '';
     try {
       token = await signAsync(userProfile, this.jwtSecret, {
-        expiresIn: '7h'
+        expiresIn: this.expiresSecret
       });
       return token;
     } catch (err) {
@@ -27,6 +32,15 @@ export class JWTService {
         `error generating token ${err}`
       )
     }
+  }
+
+  async verifyToken(token: string): Promise<UserProfile> {
+    return Promise.resolve({
+      [securityId]: 'user.id!.toString()',
+      name: 'userName',
+      id: 'user.id',
+      email: 'user.email'
+    })
   }
 }
 

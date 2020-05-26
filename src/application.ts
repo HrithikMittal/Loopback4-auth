@@ -5,6 +5,7 @@ import {RestApplication} from '@loopback/rest';
 import {RestExplorerBindings, RestExplorerComponent} from '@loopback/rest-explorer';
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
+import {PasswordHasherBindings, TokenServiceBindings, TokenServiceConstants, UserServiceBindings} from './keys';
 import {MySequence} from './sequence';
 import {BcryptHasher} from './services/hash.password';
 import {JWTService} from './services/jwt-service';
@@ -46,10 +47,18 @@ export class AuthApplication extends BootMixin(
     };
   }
   setupBinding(): void {
-    this.bind('service.hasher').toClass(BcryptHasher);
-    this.bind('rounds').to(10);
-    this.bind('service.user.service').toClass(MyUserService)
-    this.bind('service.jwt.service').toClass(JWTService);
-    this.bind('authenticatio.jwt.secret').to('SVDFBT5673YHBY4T4Y6UN77UNRN');
+    // this.bind('service.hasher').toClass(BcryptHasher);
+    // this.bind('rounds').to(10);
+    // this.bind('service.user.service').toClass(MyUserService)
+    // this.bind('service.jwt.service').toClass(JWTService);
+    // this.bind('authentication.jwt.secret').to('dvchgdvcjsdbhcbdjbvjb');
+    // this.bind('authentication.jwt.expiresIn').to('7h');
+
+    this.bind(PasswordHasherBindings.PASSWORD_HASHER).toClass(BcryptHasher);
+    this.bind(PasswordHasherBindings.ROUNDS).to(10)
+    this.bind(UserServiceBindings.USER_SERVICE).toClass(MyUserService);
+    this.bind(TokenServiceBindings.TOKEN_SERVICE).toClass(JWTService);
+    this.bind(TokenServiceBindings.TOKEN_SECRET).to(TokenServiceConstants.TOKEN_SECRET_VALUE)
+    this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to(TokenServiceConstants.TOKEN_EXPIRES_IN_VALUE);
   }
 }
