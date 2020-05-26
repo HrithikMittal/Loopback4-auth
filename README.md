@@ -6,7 +6,7 @@
 
 
 
-* Step1: 
+* ### Step1: 
 
   ```bash
   lb4 model User
@@ -14,14 +14,14 @@
   lb4 repository
   ```
 
-* Step2: 
+* ### Step2: 
 
   ```bash
   lb4 controller (Empty controller)
   Create a signup and signin routes
   ```
 
-* Step3:
+* ### Step3:
 
   Create a validate service to check the isEmail and password length
 
@@ -56,7 +56,7 @@
 
   
 
-* Step4:
+* ### Step4:
 
   Create the ``Credentials`` type in repository
 
@@ -125,7 +125,7 @@
 
   
 
-* Step5:
+* ### Step5:
 
     Now create another service which implements ``JWTService`` class 
 
@@ -162,7 +162,7 @@ To use it again bind in application.ts
 
 
 
-* Step6: Refracting the code
+* ### Step6: Refracting the code
 
   Now Create a new file ``Keys.ts``
 
@@ -222,7 +222,7 @@ To use it again bind in application.ts
 
   
 
-* Step7: How to Protect a route
+* ### Step7: How to Protect a route
 
   Add the decorator ``authenticate('jwt')`` 
 
@@ -292,7 +292,7 @@ To use it again bind in application.ts
 
   
 
-* Step8: Finally authorized a route
+* ### Step8: Finally authorized a route
 
   Now go to the user controller and add the 
 
