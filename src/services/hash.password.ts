@@ -13,7 +13,7 @@ export class BcryptHasher implements PasswordHasher<string> {
   @inject('rounds')
   public readonly rounds: number
   // round: number = 10;
-  async hashPassword(password: string) {
+  async hashPassword(password: string): Promise<string> {
     const salt = await genSalt(this.rounds);
     return await hash(password, salt);
   }
