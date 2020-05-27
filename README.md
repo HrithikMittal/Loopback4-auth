@@ -1,8 +1,20 @@
-
-
-# Auth
+# Authentication in Loopback4
 
 [<img src="https://github.com/strongloop/loopback-next/raw/master/docs/site/imgs/branding/Powered-by-LoopBack-Badge-(blue)-@2x.png" alt="LoopBack" style="zoom: 50%;" />](http://loopback.io/)
+
+The steps given below are to add the Authentication in Loopback4 and if you want to add the authorization also in your project than check out this repo [How to add Authorization](https://github.com/HrithikMittal/loopback4-authorization).
+
+## How to Setup in local System
+
+```powershell
+git clone https://github.com/HrithikMittal/loopback4-auth
+cd loopback4-auth
+npm install
+
+npm run build
+npm run migrate
+npm start
+```
 
 
 
@@ -41,18 +53,18 @@
   ```  typescript
   this.bind('service.hasher').toClass(BcryptHasher);
   ```
-
-
-  Now do the SQL Injection in the controller class ``UserController`` constructor
+  
+  
+    Now do the SQL Injection in the controller class ``UserController`` constructor
 
   ```typescript
   @inject('service.hasher')
   public hasher: BcryptHasher,
   ```
 
-  Use ``hashPassword`` method
+  	Use ``hashPassword`` method
 
-  Now just save the user into the db
+	Now just save the user into the db
 
   
 
@@ -132,30 +144,31 @@
     In this class implements one method:
 
   * generateToken (return: Promise<string>)
-  * verifyToken (return: Promise<UserProfile>)
-
- 
-
-To use it again bind in application.ts
-
+  * verifyToken (return: Promise<UserProfile>
+  
+  
+  To use it again bind in application.ts
+  
   ```typescript
- this.bind('service.jwt.service').toClass(JWTService);
+  this.bind('service.jwt.service').toClass(JWTService);
   ```
-
+  
+  
+  
   Now do the SQL Injection in the controller class ``UserController`` constructor
-
+  
   ```typescript
   @inject('service.jwt.service')
-  public jwtService: JWTService,
+    public jwtService: JWTService,
   ```
-
+  
   Now in the ``\login`` route use the method
-
+  
   ```typescript
   const token = await this.jwtService.generateToken(userProfile);
-  return Promise.resolve({token: token})
+    return Promise.resolve({token: token})
   ```
-
+  
   
 
 # Congo now you will get the token on Login
@@ -358,6 +371,3 @@ To use it again bind in application.ts
 
 
 # Finally done 
-
-
-
